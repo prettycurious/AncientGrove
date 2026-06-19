@@ -1,11 +1,34 @@
+# Unreal 生成目录
 Binaries/
 DerivedDataCache/
 Intermediate/
 Saved/
+
+# Unreal 插件生成目录
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# IDE / 编辑器生成文件
 .vs/
 .vscode/
 .idea/
-*.VC.db
 *.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.VC.opendb
+
+# Xcode / macOS
 *.xcodeproj
 *.xcworkspace
+.DS_Store
+
+# 系统临时文件
+Thumbs.db
+Desktop.ini
+
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
