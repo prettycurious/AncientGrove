@@ -12,7 +12,7 @@
 | 开发方式 | 蓝图优先，后期逐步引入 C++ |
 | 目标平台 | macOS / Windows PC |
 | 开发人员 | 个人开发 |
-| 当前阶段 | v0.6 打斗精修推进中，已完成 3 段连击、命中检测、Boss 受击硬直、击退和分段命中音效 |
+| 当前阶段 | v0.6 打斗精修推进中，已完成 3 段连击、命中检测、Boss 受击硬直、击退、分段命中音效和命中特效初版 |
 | 核心目标 | 完成一个 5~10 分钟可玩的第三人称动作冒险 Demo |
 
 ---
@@ -21,7 +21,7 @@
 
 更新时间：2026-06-25
 
-当前项目已经完成敌人 AI 基础闭环和宝箱交互通关闭环。当前 Demo 已可以完成“击败敌人后打开宝箱并显示试炼完成”的基础流程。v1.0 收尾阶段正在进行 HUD 接线和输入接线校对。2026-06-18 排查发现：`BP_PlayerCharacter` 中 `IA_Attack` 左键攻击事件误接了交互失败提示逻辑，导致左键攻击时也会显示“附近没有可交互对象”。重新接线截图已校对通过：`IA_Attack` 现在只负责攻击，`IA_Interact` 负责宝箱交互和无交互对象提示。随后发现“附近没有可交互对象”显示后不会自动隐藏，已校对 `IA_Interact` 无效分支后的 `Delay -> Is Valid?(CurrentInteractChest) -> ClearHUDPrompt` 临时提示清理流程。玩家受伤后的 HUD 血量刷新问题也已修正：`BP_PlayerCharacter` 在扣减 `CurrentHP` 后调用 `RefreshHUDHealth`，`WBP_PlayerHUD` 已通过 `PlayerCharacterRef` 读取 `CurrentHP / MaxHP` 并刷新 `PB_PlayerHP` 和 `TXT_HPValue`。2026-06-23 已将敌人血量表现从“头顶血条”调整为“Boss 战 HUD 血条”：`WBP_PlayerHUD` 内新增 Boss 血条区域，`BP_PlayerCharacter` 负责转发显示、隐藏和刷新请求，`BP_AncientGuardian` 在玩家首次进入 `DetectRange` 且 Boss 未死亡时显示 Boss 血条，受伤后刷新，死亡后隐藏。同日还修正了 Boss 追踪分支：`AI MoveTo` 应接在 `AttackRange` 判断的 `False` 分支，表示玩家在检测范围内但未进入攻击范围时持续追踪；`CanAttack` 判断的 `False` 分支保持空置，用于等待攻击冷却。随后修复 HUD 底部信息重叠问题：`TXT_InteractPrompt` 上移到 `BossHealthBox` 上方，Boss 血条继续固定在底部中间。根据“打斗精修建议”，已新增 v0.6 打斗精修版本规划，作为 v0.5 通关闭环之后、v1.0 完整 Demo 之前的战斗手感补强阶段。2026-06-25 已完成 3 段连击、命中检测、分段伤害、Boss 受击硬直、停止移动、击退和 3 段分段命中音效的基础测试。
+当前项目已经完成敌人 AI 基础闭环和宝箱交互通关闭环。当前 Demo 已可以完成“击败敌人后打开宝箱并显示试炼完成”的基础流程。v1.0 收尾阶段正在进行 HUD 接线和输入接线校对。2026-06-18 排查发现：`BP_PlayerCharacter` 中 `IA_Attack` 左键攻击事件误接了交互失败提示逻辑，导致左键攻击时也会显示“附近没有可交互对象”。重新接线截图已校对通过：`IA_Attack` 现在只负责攻击，`IA_Interact` 负责宝箱交互和无交互对象提示。随后发现“附近没有可交互对象”显示后不会自动隐藏，已校对 `IA_Interact` 无效分支后的 `Delay -> Is Valid?(CurrentInteractChest) -> ClearHUDPrompt` 临时提示清理流程。玩家受伤后的 HUD 血量刷新问题也已修正：`BP_PlayerCharacter` 在扣减 `CurrentHP` 后调用 `RefreshHUDHealth`，`WBP_PlayerHUD` 已通过 `PlayerCharacterRef` 读取 `CurrentHP / MaxHP` 并刷新 `PB_PlayerHP` 和 `TXT_HPValue`。2026-06-23 已将敌人血量表现从“头顶血条”调整为“Boss 战 HUD 血条”：`WBP_PlayerHUD` 内新增 Boss 血条区域，`BP_PlayerCharacter` 负责转发显示、隐藏和刷新请求，`BP_AncientGuardian` 在玩家首次进入 `DetectRange` 且 Boss 未死亡时显示 Boss 血条，受伤后刷新，死亡后隐藏。同日还修正了 Boss 追踪分支：`AI MoveTo` 应接在 `AttackRange` 判断的 `False` 分支，表示玩家在检测范围内但未进入攻击范围时持续追踪；`CanAttack` 判断的 `False` 分支保持空置，用于等待攻击冷却。随后修复 HUD 底部信息重叠问题：`TXT_InteractPrompt` 上移到 `BossHealthBox` 上方，Boss 血条继续固定在底部中间。根据“打斗精修建议”，已新增 v0.6 打斗精修版本规划，作为 v0.5 通关闭环之后、v1.0 完整 Demo 之前的战斗手感补强阶段。2026-06-25 已完成 3 段连击、命中检测、分段伤害、Boss 受击硬直、停止移动、击退、3 段分段命中音效和命中特效初版的基础测试。
 
 已完成内容：
 
@@ -918,7 +918,7 @@ UE 菜单提示：
 v0.6 作为 v0.5 通关闭环之后、v1.0 完整 Demo 之前的战斗手感补强版本。
 截至 2026-06-25，3 段连击、命中检测、分段伤害、Boss 受击硬直、停止移动和击退均已测试通过。
 后续详细记录以 docs/v0.6_打斗精修实施记录.md 为准。
-下一步建议进入基础打击反馈：命中音效、命中特效和轻微镜头抖动。
+下一步建议进入轻微镜头抖动，并在后续继续精修命中特效亮度、颜色和密度。
 ```
 
 ---
