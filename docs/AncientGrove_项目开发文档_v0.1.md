@@ -12,16 +12,16 @@
 | 开发方式 | 蓝图优先，后期逐步引入 C++ |
 | 目标平台 | macOS / Windows PC |
 | 开发人员 | 个人开发 |
-| 当前阶段 | v0.6 打斗精修推进中，已完成 3 段连击、命中检测、Boss 受击硬直、击退、分段命中音效、命中特效初版和命中镜头轻微抖动 |
+| 当前阶段 | v0.6 打斗精修推进中，已完成 3 段连击、命中检测、Boss 受击硬直、击退、分段命中音效、分段挥击音效、命中特效初版和命中镜头轻微抖动 |
 | 核心目标 | 完成一个 5~10 分钟可玩的第三人称动作冒险 Demo |
 
 ---
 
 ## 1.1 当前项目状态
 
-更新时间：2026-06-26
+更新时间：2026-06-29
 
-当前项目已经完成敌人 AI 基础闭环和宝箱交互通关闭环。当前 Demo 已可以完成“击败敌人后打开宝箱并显示试炼完成”的基础流程。v1.0 收尾阶段正在进行 HUD 接线和输入接线校对。2026-06-18 排查发现：`BP_PlayerCharacter` 中 `IA_Attack` 左键攻击事件误接了交互失败提示逻辑，导致左键攻击时也会显示“附近没有可交互对象”。重新接线截图已校对通过：`IA_Attack` 现在只负责攻击，`IA_Interact` 负责宝箱交互和无交互对象提示。随后发现“附近没有可交互对象”显示后不会自动隐藏，已校对 `IA_Interact` 无效分支后的 `Delay -> Is Valid?(CurrentInteractChest) -> ClearHUDPrompt` 临时提示清理流程。玩家受伤后的 HUD 血量刷新问题也已修正：`BP_PlayerCharacter` 在扣减 `CurrentHP` 后调用 `RefreshHUDHealth`，`WBP_PlayerHUD` 已通过 `PlayerCharacterRef` 读取 `CurrentHP / MaxHP` 并刷新 `PB_PlayerHP` 和 `TXT_HPValue`。2026-06-23 已将敌人血量表现从“头顶血条”调整为“Boss 战 HUD 血条”：`WBP_PlayerHUD` 内新增 Boss 血条区域，`BP_PlayerCharacter` 负责转发显示、隐藏和刷新请求，`BP_AncientGuardian` 在玩家首次进入 `DetectRange` 且 Boss 未死亡时显示 Boss 血条，受伤后刷新，死亡后隐藏。同日还修正了 Boss 追踪分支：`AI MoveTo` 应接在 `AttackRange` 判断的 `False` 分支，表示玩家在检测范围内但未进入攻击范围时持续追踪；`CanAttack` 判断的 `False` 分支保持空置，用于等待攻击冷却。随后修复 HUD 底部信息重叠问题：`TXT_InteractPrompt` 上移到 `BossHealthBox` 上方，Boss 血条继续固定在底部中间。根据“打斗精修建议”，已新增 v0.6 打斗精修版本规划，作为 v0.5 通关闭环之后、v1.0 完整 Demo 之前的战斗手感补强阶段。2026-06-25 已完成 3 段连击、命中检测、分段伤害、Boss 受击硬直、停止移动、击退、3 段分段命中音效和命中特效初版的基础测试。2026-06-26 已完成 `CS_HitImpact_Small` 命中镜头轻微抖动接入，`BP_PlayerCharacter.PlayHitFeedback` 在命中音效后触发 `Start Camera Shake`，测试通过。
+当前项目已经完成敌人 AI 基础闭环和宝箱交互通关闭环。当前 Demo 已可以完成“击败敌人后打开宝箱并显示试炼完成”的基础流程。v1.0 收尾阶段正在进行 HUD 接线和输入接线校对。2026-06-18 排查发现：`BP_PlayerCharacter` 中 `IA_Attack` 左键攻击事件误接了交互失败提示逻辑，导致左键攻击时也会显示“附近没有可交互对象”。重新接线截图已校对通过：`IA_Attack` 现在只负责攻击，`IA_Interact` 负责宝箱交互和无交互对象提示。随后发现“附近没有可交互对象”显示后不会自动隐藏，已校对 `IA_Interact` 无效分支后的 `Delay -> Is Valid?(CurrentInteractChest) -> ClearHUDPrompt` 临时提示清理流程。玩家受伤后的 HUD 血量刷新问题也已修正：`BP_PlayerCharacter` 在扣减 `CurrentHP` 后调用 `RefreshHUDHealth`，`WBP_PlayerHUD` 已通过 `PlayerCharacterRef` 读取 `CurrentHP / MaxHP` 并刷新 `PB_PlayerHP` 和 `TXT_HPValue`。2026-06-23 已将敌人血量表现从“头顶血条”调整为“Boss 战 HUD 血条”：`WBP_PlayerHUD` 内新增 Boss 血条区域，`BP_PlayerCharacter` 负责转发显示、隐藏和刷新请求，`BP_AncientGuardian` 在玩家首次进入 `DetectRange` 且 Boss 未死亡时显示 Boss 血条，受伤后刷新，死亡后隐藏。同日还修正了 Boss 追踪分支：`AI MoveTo` 应接在 `AttackRange` 判断的 `False` 分支，表示玩家在检测范围内但未进入攻击范围时持续追踪；`CanAttack` 判断的 `False` 分支保持空置，用于等待攻击冷却。随后修复 HUD 底部信息重叠问题：`TXT_InteractPrompt` 上移到 `BossHealthBox` 上方，Boss 血条继续固定在底部中间。根据“打斗精修建议”，已新增 v0.6 打斗精修版本规划，作为 v0.5 通关闭环之后、v1.0 完整 Demo 之前的战斗手感补强阶段。2026-06-25 已完成 3 段连击、命中检测、分段伤害、Boss 受击硬直、停止移动、击退、3 段分段命中音效和命中特效初版的基础测试。2026-06-26 已完成 `CS_HitImpact_Small` 命中镜头轻微抖动接入，`BP_PlayerCharacter.PlayHitFeedback` 在命中音效后触发 `Start Camera Shake`，测试通过。2026-06-29 已完成 3 段挥击音效接入：`AM_Player_Attack_Combo` 中的 3 段攻击通过 `SFX` Notify 分别播放轻拳、重拳和腿击挥击音效，空挥与命中测试通过。
 
 已完成内容：
 
@@ -70,15 +70,16 @@
 43. 已修复 HUD 底部交互提示和 Boss 血条重叠问题，`TXT_InteractPrompt` 位于 `BossHealthBox` 上方；
 44. 已新增 v0.6 打斗精修版本规划，用于后续完善 3 段轻攻击连击、命中窗口、敌人受击硬直、击退、死亡和基础打击反馈。
 45. 已新增 `CS_HitImpact_Small` 命中镜头轻微抖动资源，并接入 `BP_PlayerCharacter.PlayHitFeedback`。
+46. 已在 `AM_Player_Attack_Combo` 中接入 3 段挥击音效 `SFX_Swing_LightPunch_01`、`SFX_Swing_HeavyPunch_01` 和 `SFX_Swing_Kick_01`，空挥与命中测试通过。
 
 当前状态：
 
 ```text
 v0.5 宝箱交互基础目标已完成。
-v0.6 打斗精修已加入版本计划。BP_PlayerCharacter 中 IA_Attack 与 IA_Interact 的接线已按截图校对通过，`IA_Interact` 无效分支的临时提示自动清理流程也已按截图校对通过。HUD 血量刷新链路已验证通过：玩家扣血后 `PB_PlayerHP` 和 `TXT_HPValue` 可以同步更新。敌人血量表现已改为 Boss 战 HUD 血条：开局不显示，玩家进入 `DetectRange` 后显示，Boss 受伤后刷新，Boss 死亡后隐藏。Boss 追踪和攻击分支已重新拆清：`DetectRange` 内先判断 `AttackRange`，在攻击范围外执行 `AI MoveTo`，在攻击范围内再判断 `CanAttack` 是否可以攻击。HUD 布局已避免底部交互提示和 Boss 血条重叠：交互提示显示在 Boss 血条上方。下一步需要先在播放模式中完整测试显示时机、扣血刷新、死亡隐藏、持续追踪、HUD 不重叠和通关流程，再进入 v0.6 的 3 段连击、命中窗口、敌人受击反馈和攻击滑步修正。
+v0.6 打斗精修已进入战斗手感补强阶段。BP_PlayerCharacter 中 IA_Attack 与 IA_Interact 的职责已拆分，HUD 血量刷新、Boss 战 HUD 血条、Boss 追踪和攻击分支均已完成基础校对。当前 v0.6 已完成 3 段连击、Montage Section、Anim Notify 连击窗口、Sphere Trace 命中检测、每段只命中一次、分段伤害、Boss 受击硬直、停止移动、击退、分段命中音效、分段挥击音效、命中特效初版和命中镜头轻微抖动。下一步以 v0.6 独立文档为准，优先处理攻击滑步和攻击期间移动手感。
 ```
 
-下一步执行顺序：
+历史执行顺序记录：
 
 1. 保留当前已验证可用的 `NavMeshBoundsVolume` 和 `Acceptance Radius = 80.0` 设置；
 2. 保存当前已验证通过的宝箱、玩家、敌人和地图资产；
@@ -128,7 +129,7 @@ v0.6 打斗精修已加入版本计划。BP_PlayerCharacter 中 IA_Attack 与 IA
 | 2026-06-23 | Boss 战 HUD 血条、检测范围触发和蓝图校对 | [2026-06-23.md](devlog/2026-06-23.md) |
 | 2026-06-25 | v0.6 Boss 受击硬直、停止移动和击退 | [2026-06-25.md](devlog/2026-06-25.md) |
 | 2026-06-26 | v0.6 命中镜头轻微抖动接入 | [2026-06-26.md](devlog/2026-06-26.md) |
-| 2026-06-29 | v0.6 临时挥击音效源文件生成 | [2026-06-29.md](devlog/2026-06-29.md) |
+| 2026-06-29 | v0.6 临时挥击音效生成、接入和测试通过 | [2026-06-29.md](devlog/2026-06-29.md) |
 
 说明：
 
